@@ -36,7 +36,7 @@ let ID = 0;
 
 // We start by creating a function that will accept a path to a file, read
 // its contents, and extract its dependencies.
-function createAsset(filename) {
+function  & babel编译代码createAsset(filename) {
   // Read the content of the file as a string.
   const content = fs.readFileSync(filename, 'utf-8');
 
@@ -68,7 +68,7 @@ function createAsset(filename) {
     // dependency.
     ImportDeclaration: ({node}) => {
       // We push the value that we import into the dependencies array.
-      dependencies.push(node.source.value);
+      dependencies.push(node.source.value); // springleo: 通过ATS找到依赖项目
     },
   });
 
@@ -83,7 +83,7 @@ function createAsset(filename) {
   // The `presets` option is a set of rules that tell Babel how to transpile
   // our code. We use `babel-preset-env` to transpile our code to something
   // that most browsers can run.
-  const {code} = transformFromAst(ast, null, {
+  const {code} = transformFromAst(ast, null, { // springleo: babel编译代码（babylon.parse -> AST -> transformFromAst -> code）
     presets: ['env'],
   });
 
@@ -225,7 +225,7 @@ function bundle(graph) {
         const [fn, mapping] = modules[id];
 
         function localRequire(name) {
-          return require(mapping[name]);
+          return require(mapping[name]); // springleo: 从依赖包的名字，找到包编译的序列号ID
         }
 
         const module = { exports : {} };
@@ -243,6 +243,7 @@ function bundle(graph) {
   return result;
 }
 
+// 流程：入口entry文件 -> 生成ATS -> ATS中找到依赖项 & babel编译代码（createAsset） -> 依赖项递归生成队列queue（createGraph） -> 代码拼接（build，基于CommonJS规范）
 const graph = createGraph('./example/entry.js');
 const result = bundle(graph);
 
